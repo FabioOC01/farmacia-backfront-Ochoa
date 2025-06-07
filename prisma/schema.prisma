@@ -1,0 +1,29 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // Or "mysql", "sqlserver", "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model OrdenVenta {
+  NroOrdenVta    String             @id @unique // Assuming NroOrdenVta is a unique identifier, e.g., a UUID or custom string ID
+  fechaEmision   DateTime
+  Motivo         String?
+  Situacion      String?
+  DetalleOrdenVta DetalleOrdenVta[]
+}
+
+model DetalleOrdenVta {
+  id             String      @id @default(uuid()) // Auto-generated UUID for unique detail ID
+  NroOrdenVta    String      // Foreign key to OrdenVenta
+  CodMedicamento String      // Assuming CodMedicamento is a string, adjust if it's an Int. In a real scenario, this would be a FK to a Medicamento table.
+  descripcionMed String
+  cantidadRequerida Int
+  OrdenVenta      OrdenVenta  @relation(fields: [NroOrdenVta], references: [NroOrdenVta])
+
+  @@unique([NroOrdenVta, CodMedicamento]) // Ensures a unique medicine per order
+}
